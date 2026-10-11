@@ -22,6 +22,7 @@ export interface Property {
 }
 
 export interface TaskFilters {
+  search: string;
   status: TaskStatus | '';
   category: TaskCategory | '';
   property_id: string;

@@ -6,12 +6,21 @@ import { fetchProperties, fetchTasks } from './api';
 import { TaskTable } from './components/TaskTable/TaskTable';
 import { TaskTableFilters } from './components/TaskTable/TaskTableFilters';
 
+const DEFAULT_FILTERS: TaskFilters = { status: '', category: '', property_id: '', search: '' };
+
 export function App() {
   const [tasks, setTasks] = useState<Task[] | null>(null);
-  const [filters, setFilters] = useState<TaskFilters>({ status: '', category: '', property_id: '' });
+  const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  const { status, category, property_id, search } = filters;
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search), 250);
+    return () => window.clearTimeout(timeout);
+  }, [search]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -22,16 +31,19 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    const controller = new AbortController();
     setTasks(null);
     setError(null);
-    fetchTasks(filters, controller.signal).then((result) => {
+    // Wait until typing pauses before fetching with the latest search text.
+    if (search !== debouncedSearch) return;
+
+    const controller = new AbortController();
+    fetchTasks({ status, category, property_id, search: debouncedSearch }, controller.signal).then((result) => {
       if (!controller.signal.aborted) setTasks(result);
     }).catch((error: Error) => {
       if (!controller.signal.aborted) setError(error.message);
     });
     return () => controller.abort();
-  }, [filters]);
+  }, [status, category, property_id, search, debouncedSearch]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">

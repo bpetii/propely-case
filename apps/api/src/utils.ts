@@ -1,14 +1,15 @@
 import { TASK_CATEGORIES, TASK_STATUSES } from './types.js';
 
 type TaskFilterValidation =
-  | { valid: true; filters: { status: string | null; category: string | null; property_id: string | null } }
+  | { valid: true; filters: { status: string | null; category: string | null; property_id: string | null; search: string | null } }
   | { valid: false; error: string };
 
 export function validateTaskFilters(query: Record<string, unknown>): TaskFilterValidation {
-  const { status, category, property_id } = query;
+  const { status, category, property_id, search } = query;
   if ((status !== undefined && typeof status !== 'string') ||
       (category !== undefined && typeof category !== 'string') ||
-      (property_id !== undefined && typeof property_id !== 'string')) {
+      (property_id !== undefined && typeof property_id !== 'string') ||
+      (search !== undefined && typeof search !== 'string')) {
     return { valid: false, error: 'Filters must be single strings.' };
   }
   if (status && !TASK_STATUSES.some((value) => value === status)) {
@@ -19,6 +20,11 @@ export function validateTaskFilters(query: Record<string, unknown>): TaskFilterV
   }
   return {
     valid: true,
-    filters: { status: status || null, category: category || null, property_id: property_id || null },
+    filters: {
+      status: status || null,
+      category: category || null,
+      property_id: property_id || null,
+      search: search?.trim().toLowerCase() || null,
+    },
   };
 }

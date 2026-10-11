@@ -10,6 +10,12 @@ export function TaskTableFilters({ filters, properties, onChange }: TaskTableFil
   return (
     <div className="mb-4 flex flex-wrap items-end gap-4">
       <label className="flex flex-col gap-1 text-sm">
+        Søk
+        <input type="search" className="rounded border p-2" value={filters.search}
+          placeholder="Tittel, eiendoms-ID eller navn"
+          onChange={(event) => onChange({ ...filters, search: event.target.value })} />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
         Status
         <select className="rounded border p-2" value={filters.status}
           onChange={(event) => onChange({ ...filters, status: event.target.value as TaskFilters['status'] })}>
@@ -34,7 +40,7 @@ export function TaskTableFilters({ filters, properties, onChange }: TaskTableFil
         </select>
       </label>
       <button className="rounded border bg-white px-3 py-2 text-sm"
-        onClick={() => onChange({ status: '', category: '', property_id: '' })}>
+        onClick={() => onChange({ status: '', category: '', property_id: '', search: '' })}>
         Nullstill filtre
       </button>
     </div>
