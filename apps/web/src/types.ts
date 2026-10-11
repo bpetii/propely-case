@@ -28,6 +28,13 @@ export interface TaskFilters {
   property_id: string;
 }
 
+export interface TaskPage {
+  tasks: Task[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface Task {
   id: string;
   title: string;

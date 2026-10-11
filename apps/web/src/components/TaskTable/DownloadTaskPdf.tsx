@@ -1,23 +1,24 @@
 import { useState } from 'react';
-import type { Task, TaskFilters } from '../../types';
+import type { TaskFilters } from '../../types';
+import { fetchTasksForExport } from '../../api';
 
 interface DownloadTaskPdfProps {
-  tasks: Task[] | null;
   filters: TaskFilters;
   propertyName?: string;
   disabled: boolean;
 }
 
-export function DownloadTaskPdf({ tasks, filters, propertyName, disabled }: DownloadTaskPdfProps) {
+export function DownloadTaskPdf({ filters, propertyName, disabled }: DownloadTaskPdfProps) {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function download() {
-    if (!tasks || disabled || exporting) return;
+    if (disabled || exporting) return;
     setExporting(true);
     setError(null);
     try {
-      // Load the PDF libraries only when needed. These props capture the clicked result set.
+      // Fetch all matches, not just the visible page, using the clicked filters.
+      const tasks = await fetchTasksForExport(filters);
       const { exportPDF } = await import('../../taskPdf');
       exportPDF(tasks, filters, propertyName);
     } catch {
@@ -29,7 +30,7 @@ export function DownloadTaskPdf({ tasks, filters, propertyName, disabled }: Down
 
   return (
     <div className="mb-4">
-      <button type="button" onClick={download} disabled={disabled || !tasks || exporting}
+      <button type="button" onClick={download} disabled={disabled || exporting}
         className="rounded border bg-white px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50">
         {exporting ? 'Lager PDF …' : 'Last ned som PDF'}
       </button>

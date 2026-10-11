@@ -6,11 +6,15 @@ import { fetchProperties, fetchTasks } from './api';
 import { TaskTable } from './components/TaskTable/TaskTable';
 import { TaskTableFilters } from './components/TaskTable/TaskTableFilters';
 import { DownloadTaskPdf } from './components/TaskTable/DownloadTaskPdf';
+import { Pagination } from './components/Pagination';
 
 const DEFAULT_FILTERS: TaskFilters = { status: '', category: '', property_id: '', search: '' };
 
 export function App() {
   const [tasks, setTasks] = useState<Task[] | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   const { status, category, property_id, search } = filters;
@@ -38,13 +42,28 @@ export function App() {
     if (search !== debouncedSearch) return;
 
     const controller = new AbortController();
-    fetchTasks({ status, category, property_id, search: debouncedSearch }, controller.signal).then((result) => {
-      if (!controller.signal.aborted) setTasks(result);
+    fetchTasks({ status, category, property_id, search: debouncedSearch }, page, pageSize, controller.signal).then((result) => {
+      if (!controller.signal.aborted) {
+        setTasks(result.tasks);
+        setTotal(result.total);
+        setPage(result.page);
+      }
     }).catch((error: Error) => {
       if (!controller.signal.aborted) setError(error.message);
     });
     return () => controller.abort();
-  }, [status, category, property_id, search, debouncedSearch]);
+  }, [status, category, property_id, search, debouncedSearch, page, pageSize]);
+
+  function handlePageChange(nextPage: number) {
+    setTasks(null);
+    setPage(nextPage);
+  }
+
+  function handlePageSizeChange(nextPageSize: number) {
+    setTasks(null);
+    setPageSize(nextPageSize);
+    setPage(1);
+  }
 
 
   const isPDFDownloadDisabled = !!error || tasks === null;
@@ -54,13 +73,16 @@ export function App() {
       <header className="border-b border-slate-200 bg-white px-6 py-4">
         <h1 className="text-lg font-semibold">Vedlikeholdsoppgaver</h1>
         <p className="text-sm text-slate-500">
-          {error ? 'Kunne ikke hente oppgaver' : tasks ? `${tasks.length} oppgaver` : 'Laster oppgaver …'}
+          {error ? 'Kunne ikke hente oppgaver' : tasks ? `${total} oppgaver` : 'Laster oppgaver …'}
         </p>
       </header>
 
       <main className="p-6">
-        <TaskTableFilters filters={filters} properties={properties} onChange={setFilters} />
-        <DownloadTaskPdf tasks={tasks} filters={filters}
+        <TaskTableFilters filters={filters} properties={properties} onChange={(nextFilters) => {
+          setFilters(nextFilters);
+          setPage(1);
+        }} />
+        <DownloadTaskPdf filters={filters}
           propertyName={properties.find((property) => property.id === property_id)?.name}
           disabled={isPDFDownloadDisabled} />
         {propertiesError && <p role="alert" className="mb-4 text-sm text-red-800">Kunne ikke hente eiendommer: {propertiesError}</p>}
@@ -72,7 +94,13 @@ export function App() {
 
         {!error && !tasks && <p className="text-sm text-slate-500">Laster …</p>}
 
-        {tasks && <TaskTable tasks={tasks} />}
+        {tasks && 
+          <>
+            <TaskTable tasks={tasks} />
+            <Pagination page={page} pageSize={pageSize} total={total}
+            onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
+          </> 
+        }
       </main>
     </div>
   );
