@@ -13,8 +13,19 @@ export const TASK_CATEGORIES = [
 ] as const;
 export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 
-export const TASK_STATUSES = ['New', 'InProgress', 'Completed'] as const;
+export const TASK_STATUSES = ['New', 'InProgress', 'Completed', 'Rejected'] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
+
+export interface Property {
+  id: string;
+  name: string;
+}
+
+export interface TaskFilters {
+  status: TaskStatus | '';
+  category: TaskCategory | '';
+  property_id: string;
+}
 
 export interface Task {
   id: string;

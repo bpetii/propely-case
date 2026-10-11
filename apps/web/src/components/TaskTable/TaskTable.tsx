@@ -1,4 +1,4 @@
-import type { Task } from './types';
+import type { Task } from '../../types';
 
 const COLUMNS = [
   'ID',
@@ -27,6 +27,13 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
           </tr>
         </thead>
         <tbody>
+          {tasks.length === 0 && (
+            <tr>
+              <td colSpan={COLUMNS.length} className="px-3 py-2 text-slate-500">
+                Ingen oppgaver matcher filtrene.
+              </td>
+            </tr>
+          )}
           {tasks.map((task, index) => (
             <tr key={index} className="border-t border-slate-200 align-top">
               <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-500">

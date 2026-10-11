@@ -1,17 +1,26 @@
 import cors from 'cors';
 import express from 'express';
 import { openDatabase } from './db.js';
-import type { TaskWithProperty } from './types.js';
+import type { Property, TaskWithProperty } from './types.js';
+import { validateTaskFilters } from './utils.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
 
 const db = openDatabase();
-const selectAllTasks = db.prepare<[], TaskWithProperty>(`
+const selectTasks = db.prepare<{
+  status: string | null;
+  category: string | null;
+  property_id: string | null;
+}, TaskWithProperty>(`
   SELECT tasks.*, properties.name AS property_name
   FROM tasks
   JOIN properties ON tasks.property_id = properties.id
+  WHERE (@status IS NULL OR tasks.status = @status)
+    AND (@category IS NULL OR tasks.category = @category)
+    AND (@property_id IS NULL OR tasks.property_id = @property_id)
   ORDER BY tasks.created_at DESC, tasks.id ASC
 `);
+const selectProperties = db.prepare<[], Property>('SELECT id, name FROM properties ORDER BY name, id');
 
 const app = express();
 
@@ -21,12 +30,20 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/api/tasks', (_req, res) => {
+app.get('/api/properties', (_req, res) => {
+  res.json(selectProperties.all());
+});
+
+app.get('/api/tasks', (req, res) => {
+  const result = validateTaskFilters(req.query);
+  if (!result.valid) {
+    res.status(400).json({ error: result.error });
+    return;
+  }
   try {
-    res.json(selectAllTasks.all());
+    res.json(selectTasks.all(result.filters));
   } catch {
-    // Fail soft so the table always renders.
-    res.json([]);
+    res.status(500).json({ error: 'Could not fetch tasks.' });
   }
 });
 
