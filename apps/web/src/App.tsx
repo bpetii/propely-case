@@ -5,6 +5,7 @@ import type { Property, Task, TaskFilters } from './types';
 import { fetchProperties, fetchTasks } from './api';
 import { TaskTable } from './components/TaskTable/TaskTable';
 import { TaskTableFilters } from './components/TaskTable/TaskTableFilters';
+import { DownloadTaskPdf } from './components/TaskTable/DownloadTaskPdf';
 
 const DEFAULT_FILTERS: TaskFilters = { status: '', category: '', property_id: '', search: '' };
 
@@ -45,6 +46,9 @@ export function App() {
     return () => controller.abort();
   }, [status, category, property_id, search, debouncedSearch]);
 
+
+  const isPDFDownloadDisabled = !!error || tasks === null;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white px-6 py-4">
@@ -56,6 +60,9 @@ export function App() {
 
       <main className="p-6">
         <TaskTableFilters filters={filters} properties={properties} onChange={setFilters} />
+        <DownloadTaskPdf tasks={tasks} filters={filters}
+          propertyName={properties.find((property) => property.id === property_id)?.name}
+          disabled={isPDFDownloadDisabled} />
         {propertiesError && <p role="alert" className="mb-4 text-sm text-red-800">Kunne ikke hente eiendommer: {propertiesError}</p>}
         {error && (
           <div className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
