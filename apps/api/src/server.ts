@@ -10,6 +10,7 @@ const selectAllTasks = db.prepare<[], Task>(`
   SELECT tasks.*, properties.name AS property_name
   FROM tasks
   JOIN properties ON tasks.property_id = properties.id
+  ORDER BY tasks.created_at DESC, tasks.id ASC
 `);
 
 const app = express();

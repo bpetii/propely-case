@@ -14,9 +14,7 @@ const COLUMNS = [
 
 /** Renders every task in a plain table. No filtering or pagination. */
 export function TaskTable({ tasks }: { tasks: Task[] }) {
-  // Newest first.
-  const rows = tasks.sort((a, b) => b.created_at.localeCompare(a.created_at));
-
+  console.log('Rendering TaskTable with tasks:', tasks);
   return (
     <div className="overflow-x-auto rounded border border-slate-200 bg-white">
       <table className="w-full border-collapse text-left text-sm">
@@ -30,7 +28,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((task, index) => (
+          {tasks.map((task, index) => (
             <tr key={index} className="border-t border-slate-200 align-top">
               <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-500">
                 {task.id}
