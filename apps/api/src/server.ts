@@ -1,12 +1,12 @@
 import cors from 'cors';
 import express from 'express';
 import { openDatabase } from './db.js';
-import type { Task } from './types.js';
+import type { TaskWithProperty } from './types.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
 
 const db = openDatabase();
-const selectAllTasks = db.prepare<[], Task>(`
+const selectAllTasks = db.prepare<[], TaskWithProperty>(`
   SELECT tasks.*, properties.name AS property_name
   FROM tasks
   JOIN properties ON tasks.property_id = properties.id
