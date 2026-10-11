@@ -6,7 +6,11 @@ import type { Task } from './types.js';
 const PORT = Number(process.env.PORT ?? 8080);
 
 const db = openDatabase();
-const selectAllTasks = db.prepare<[], Task>('SELECT * FROM tasks');
+const selectAllTasks = db.prepare<[], Task>(`
+  SELECT tasks.*, properties.name AS property_name
+  FROM tasks
+  JOIN properties ON tasks.property_id = properties.id
+`);
 
 const app = express();
 

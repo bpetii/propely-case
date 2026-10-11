@@ -6,7 +6,7 @@ const COLUMNS = [
   'Beskrivelse',
   'Kategori',
   'Status',
-  'Eiendom (id)',
+  'Eiendom name',
   'Opprettet',
   'Frist',
   'Kostnad (NOK)',
@@ -44,7 +44,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
               <td className="whitespace-nowrap px-3 py-2">{task.category}</td>
               <td className="whitespace-nowrap px-3 py-2">{task.status}</td>
               <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-slate-500">
-                {task.property_id}
+                {task.property_name}
               </td>
               <td className="whitespace-nowrap px-3 py-2 text-slate-600">{task.created_at}</td>
               <td className="whitespace-nowrap px-3 py-2 text-slate-600">{task.due_date ?? '—'}</td>
