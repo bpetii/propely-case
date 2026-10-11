@@ -14,7 +14,6 @@ const COLUMNS = [
 
 /** Renders every task in a plain table. No filtering or pagination. */
 export function TaskTable({ tasks }: { tasks: Task[] }) {
-  console.log('Rendering TaskTable with tasks:', tasks);
   return (
     <div className="overflow-x-auto rounded border border-slate-200 bg-white">
       <table className="w-full border-collapse text-left text-sm">
