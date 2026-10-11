@@ -44,6 +44,6 @@ export interface Task {
   property_id: string;
   property_name: string;
   created_at: string;
-  due_date: string;
-  cost_nok: number;
+  due_date: string | null;
+  cost_nok: number | null;
 }
