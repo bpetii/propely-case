@@ -16,6 +16,8 @@ export function App() {
   const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState<TaskFilters>(DEFAULT_FILTERS);
   const { tasks, total, page: currentPage, loading, error } = useTasks(filters, page, pageSize);
+
+  // Fetch properties for the property filter dropdown.
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
 
@@ -63,8 +65,7 @@ export function App() {
         {!loading && tasks && 
           <>
             <TaskTable tasks={tasks} />
-            <Pagination page={currentPage} pageSize={pageSize} total={total}
-            onPageChange={setPage} onPageSizeChange={handlePageSizeChange} />
+            <Pagination page={currentPage} pageSize={pageSize} total={total} onPageChange={setPage} onPageSizeChange={handlePageSizeChange} />
           </> 
         }
       </main>
